@@ -5,17 +5,37 @@
 </head>
 <body>
 <canvas width=800 height="400" id="main"></canvas>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type="text/javascript">
+   var canvasJquery = $('#main');
    var canvasMain = document.getElementById('main');
    var contextMain = canvasMain.getContext("2d");
-   var cMainWidth = 800;
-   var cMainHeight = 400;
+
    var squareSize = 20;
    var colors = ['green', 'blue', 'ping', 'purple', 'red', 'orange', 'gray'];
 
+   var canvasSize = {
+       x: 800,
+       y: 400
+   }
+
+   var canvasPosition = {
+       x: canvasJquery.offset().left,
+       y: canvasJquery.offset().top
+   };
+
+   canvasJquery.on('click', function(e) {
+       var mouse = {
+           x: e.pageX - canvasPosition.x,
+           y: e.pageY - canvasPosition.y
+       }
+
+       drawSquare( mouse.x, mouse.y, 20, 'black' );
+   });
+
    function drawField(){
-       for (var x = 0; x < cMainWidth; x += squareSize) {
-           for (var y = 0; y < cMainHeight; y +=squareSize) {
+       for (var x = 0; x < canvasSize.x; x += squareSize) {
+           for (var y = 0; y < canvasSize.y; y +=squareSize) {
                color = colors[Math.floor(Math.random() * colors.length)];
                drawSquare(x, y, squareSize, color);
            }
@@ -23,10 +43,11 @@
    }
 
    function drawSquare(x, y, size, color){
-
        contextMain.fillStyle = color;
        contextMain.fillRect(x,y,size,size);
    }
+
+
 
    drawField()
 
