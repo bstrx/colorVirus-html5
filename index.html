@@ -4,7 +4,7 @@
     <title></title>
 </head>
 <body>
-<canvas width=800 height="400" id="main"></canvas>
+<canvas width="800" height="500" id="main"></canvas>
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type="text/javascript">
    var canvasJquery = $('#main');
@@ -12,7 +12,10 @@
    var contextMain = canvasMain.getContext("2d");
 
    var squareSize = 20;
-   var colors = ['green', 'blue', 'ping', 'purple', 'red', 'orange', 'gray'];
+   var colorBoxSize = 40
+   var fieldSquares = [];
+   var colorSquares = [];
+   var colors = ['green', 'blue', 'MediumPurple', 'purple', 'red', 'orange', 'gray'];
 
    var canvasSize = {
        x: 800,
@@ -30,26 +33,85 @@
            y: e.pageY - canvasPosition.y
        }
 
-       drawSquare( mouse.x, mouse.y, 20, 'black' );
+       for (var i = 0; i < colorSquares.length; i++) {
+           if (mouse.x >= colorSquares[i].x &&
+                   mouse.y >= colorSquares[i].y &&
+                   mouse.x < colorSquares[i].x + colorBoxSize &&
+                   mouse.y < colorSquares[i].y + colorBoxSize
+                   ) {
+               makeAMove(colorSquares[i].color);
+           }
+       }
    });
 
+   //делает ход
+   function makeAMove(color) {
+       for (var i = 0; i < fieldSquares.length; i++) {
+            if (fieldSquares[i].isCaptured == true) {
+                fieldSquares[i].color = color;
+                fieldSquares[i].draw();
+            }
+       }
+   }
+
+   отрисовывает поле и область с цветами
    function drawField(){
        for (var x = 0; x < canvasSize.x; x += squareSize) {
            for (var y = 0; y < canvasSize.y; y +=squareSize) {
                color = colors[Math.floor(Math.random() * colors.length)];
-               drawSquare(x, y, squareSize, color);
+               square = createSquare(x, y, color, squareSize);
+               square.draw();
+               fieldSquares.push(square);
            }
+       }
+
+       for (var i = 0; i < colors.length; i++) {
+           colorBox = createColor(i * 30 + 10 * i, 420, colors[i], colorBoxSize);
+           colorBox.draw();
+           colorSquares.push(colorBox);
        }
    }
 
-   function drawSquare(x, y, size, color){
-       contextMain.fillStyle = color;
-       contextMain.fillRect(x,y,size,size);
-   }
-
-
-
    drawField()
+
+   //возвращает квадрат поля
+   function createSquare(x, y, color, size) {
+        square = {};
+        square.x = x;
+        square.y = y;
+        square.color = color;
+        square.size = size;
+        square.isCaptured = false;
+
+        square.draw = function() {
+            contextMain.fillStyle = this.color;
+            contextMain.fillRect(this.x, this.y, this.size, this.size);
+        }
+
+        square.setCaptured = function() {
+            contextMain.fillStyle = 'black';
+            contextMain.fillRect(this.x, this.y, this.size, this.size);
+        }
+
+        return square;
+    }
+
+   //возвращает бокс цвета
+    function createColor(x, y, color, size) {
+        colorBox = {};
+        colorBox.x = x;
+        colorBox.y = y;
+        colorBox.color = color;
+        colorBox.size = size;
+
+        colorBox.draw = function() {
+            contextMain.fillStyle = this.color;
+            contextMain.fillRect(this.x, this.y, this.size, this.size);
+        }
+
+        return colorBox;
+    }
+
 
 </script>
 
