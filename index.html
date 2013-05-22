@@ -7,27 +7,61 @@
 <canvas width="800" height="500" id="main"></canvas>
 <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
 <script type="text/javascript">
-   var canvasJquery = $('#main');
-   var canvasMain = document.getElementById('main');
-   var contextMain = canvasMain.getContext("2d");
+    var canvasJquery = $('#main');
+    var canvasMain = document.getElementById('main');
+    var contextMain = canvasMain.getContext("2d");
 
-   var squareSize = 20;
-   var colorBoxSize = 40
-   var fieldSquares = [];
-   var colorSquares = [];
-   var colors = ['green', 'blue', 'MediumPurple', 'purple', 'red', 'orange', 'gray'];
+    var fieldBoxSize = 20;
+    var choiceBoxSize = 40
+    var fieldBoxes = [];
+    var choiceBoxes = [];
+    var colors = ['green', 'blue', 'MediumPurple', 'purple', 'red', 'orange', 'gray'];
 
-   var canvasSize = {
+    var canvasSize = {
        x: 800,
        y: 400
-   }
+    }
 
-   var canvasPosition = {
+    var canvasPosition = {
        x: canvasJquery.offset().left,
        y: canvasJquery.offset().top
-   };
+    };
 
-   canvasJquery.on('click', function(e) {
+    BoxProto = {
+        x: 0,
+        y: 0,
+        color: null,
+        size: 0,
+
+        draw: function() {
+            contextMain.fillStyle = this.color;
+            contextMain.fillRect(this.x, this.y, this.size, this.size);
+        }
+    }
+
+    function fieldBox(x, y, color,size) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.size = size;
+
+        this.setCaptured = function() {
+            contextMain.fillStyle = 'black';
+            contextMain.fillRect(this.x, this.y, this.size, this.size);
+        }
+    }
+
+    function choiceBox(x, y, color,size) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.size = size;
+    }
+
+    fieldBox.prototype = BoxProto;
+    choiceBox.prototype = BoxProto;
+
+    canvasJquery.on('click', function(e) {
        var mouse = {
            x: e.pageX - canvasPosition.x,
            y: e.pageY - canvasPosition.y
@@ -36,84 +70,47 @@
        for (var i = 0; i < colorSquares.length; i++) {
            if (mouse.x >= colorSquares[i].x &&
                    mouse.y >= colorSquares[i].y &&
-                   mouse.x < colorSquares[i].x + colorBoxSize &&
-                   mouse.y < colorSquares[i].y + colorBoxSize
+                   mouse.x < colorSquares[i].x + choiceBoxSize &&
+                   mouse.y < colorSquares[i].y + choiceBoxSize
                    ) {
                makeAMove(colorSquares[i].color);
            }
        }
-   });
+    });
 
-   //делает ход
-   function makeAMove(color) {
+    //делает ход
+    function makeAMove(color) {
        for (var i = 0; i < fieldSquares.length; i++) {
             if (fieldSquares[i].isCaptured == true) {
                 fieldSquares[i].color = color;
                 fieldSquares[i].draw();
             }
        }
-   }
+    }
 
-   отрисовывает поле и область с цветами
-   function drawField(){
-       for (var x = 0; x < canvasSize.x; x += squareSize) {
-           for (var y = 0; y < canvasSize.y; y +=squareSize) {
+    //отрисовывает поле и область с цветами
+    function drawField(){
+       for (var x = 0; x < canvasSize.x; x += fieldBoxSize) {
+           for (var y = 0; y < canvasSize.y; y +=fieldBoxSize) {
                color = colors[Math.floor(Math.random() * colors.length)];
-               square = createSquare(x, y, color, squareSize);
-               square.draw();
-               fieldSquares.push(square);
+               fieldBox = new fieldBox(x, y, color, fieldBoxSize);
+               fieldBox.draw();
+               fieldBoxes.push(fieldBox);
            }
        }
 
        for (var i = 0; i < colors.length; i++) {
-           colorBox = createColor(i * 30 + 10 * i, 420, colors[i], colorBoxSize);
-           colorBox.draw();
-           colorSquares.push(colorBox);
+           choiceBox = new choiceBox(i * 30 + 10 * i, 420, colors[i], choiceBoxSize);
+           choiceBox.draw();
+           choiceBoxes.push(choiceBox);
        }
-   }
-
-   drawField()
-
-   //возвращает квадрат поля
-   function createSquare(x, y, color, size) {
-        square = {};
-        square.x = x;
-        square.y = y;
-        square.color = color;
-        square.size = size;
-        square.isCaptured = false;
-
-        square.draw = function() {
-            contextMain.fillStyle = this.color;
-            contextMain.fillRect(this.x, this.y, this.size, this.size);
-        }
-
-        square.setCaptured = function() {
-            contextMain.fillStyle = 'black';
-            contextMain.fillRect(this.x, this.y, this.size, this.size);
-        }
-
-        return square;
     }
 
-   //возвращает бокс цвета
-    function createColor(x, y, color, size) {
-        colorBox = {};
-        colorBox.x = x;
-        colorBox.y = y;
-        colorBox.color = color;
-        colorBox.size = size;
+    drawField()
 
-        colorBox.draw = function() {
-            contextMain.fillStyle = this.color;
-            contextMain.fillRect(this.x, this.y, this.size, this.size);
-        }
 
-        return colorBox;
-    }
 
 
 </script>
-
 </body>
 </html>
